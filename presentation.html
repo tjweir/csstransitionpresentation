@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<style>
+
+.card {
+  position: absolute;
+  margin: 1em;
+  padding: 0.5em;
+  min-height: 20em;
+  min-width: 30em;
+  background: white;
+  border: 1px solid black;
+  -webkit-box-shadow: black 3px 3px 5px;
+
+  -webkit-transition: opacity, -webkit-transform;
+  -webkit-transition-duration: 0.5s;
+
+  z-index: 0;
+  opacity: 0;
+  -webkit-transform: scale(1.5);
+}
+
+
+.card:target + .card {
+  -webkit-transform: scale(0.5);
+}
+
+.card:target + .card + .card {
+  display: none;
+  -webkit-transition-property: none;
+}
+
+.card:target {
+  opacity: 1;
+  -webkit-transform: scale(1);
+}
+
+.slow .card {
+  -webkit-transition-duration: 5s;
+}
+
+</style>
+<script>
+
+var currentCard = 0;
+
+function fowardOneCard() {
+  currentCard++;
+  window.location.hash = 'test' + currentCard;
+}
+
+function backwardOneCard() {
+  if (currentCard <= 0) return;
+  currentCard--;
+  window.location.hash = 'test' + currentCard;
+}
+
+function makeSlow() {
+  document.body.className = 'slow';
+}
+
+function makeNormal() {
+  document.body.className = '';
+}
+
+document.onkeydown = function(e) {
+  currentCard = getCurrentCardFromHash();
+  if (e.metaKey || e.altKey || e.ctrlKey) return;
+  switch (e.keyIdentifier) {
+    case 'Right':
+      fowardOneCard();
+      break;
+    case 'Left':
+      backwardOneCard();
+      break;
+    case 'Shift':
+      makeSlow();
+      break;
+  }
+};
+
+document.onkeyup = function(e) {
+  switch (e.keyIdentifier) {
+    case 'Shift':
+      makeNormal();
+      break;
+  }
+};
+
+
+function getCurrentCardFromHash() {
+  var hash = window.location.hash;
+  if (/#test(\d+)/.test(hash)) {
+    return Number(hash.match(/#test(\d+)/)[1]);
+  }
+  return 0
+}
+
+var hash = window.location.hash;
+// Set the hash if not already set
+if (hash == '' || hash == '#') {
+  window.location.replace(window.location.href.replace(/#.*/, '') + '#test0');
+} else {
+  currentCard = getCurrentCardFromHash();
+}
+
+</script>
+</head>
+<body>
+
+<script>
+
+function createCard(i) {
+  var el = document.createElement('div');
+  el.id = 'test' + i;
+  el.className = 'card';
+  el.innerHTML = writeSomeFiller(i);
+  document.body.appendChild(el);
+}
+
+function writeSomeFiller(n) {
+  var s = '<h2>Slide {$n}</h2>';
+  s += '<ul>';
+  for (var i = 0; i < 5; i++) {
+    s += '<li>Item {$n}.1';
+  }
+  s += '</ul>';
+  return s.replace(/{\$n}/g, n);
+}
+
+window.addEventListener('load', function(e) {
+  for (var i = 0; i < 20; i++ ) {
+    createCard(i);
+  }
+}, false);
+
+</script>
+
+</body>
+</html>
+
